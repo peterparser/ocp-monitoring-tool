@@ -56,4 +56,5 @@ func parseResponse(response *http.Response) string {
 	accessToken_raw := strings.Split(locationHeader, "access_token=")
 	accessToken := strings.Split(accessToken_raw[len(accessToken_raw)-1], "&")[0]
 	return accessToken
+
 }
