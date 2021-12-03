@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-const OauthPath = "/oauth/authorize"
-const response_type = "token"
-const client_id = "openshift-challenging-client"
+const oauthPath = "/oauth/authorize"
+const responseType = "token"
+const clientId = "openshift-challenging-client"
 
 func GetOcpToken(ocpOauthUrl string, username string, password string) string {
 	transCfg := &http.Transport{
@@ -23,7 +23,7 @@ func GetOcpToken(ocpOauthUrl string, username string, password string) string {
 	}
 
 	encodedAuth := basicAuth(username, password)
-	req, err := http.NewRequest("GET", ocpOauthUrl+OauthPath, nil)
+	req, err := http.NewRequest("GET", ocpOauthUrl+oauthPath, nil)
 
 	if err != nil {
 		log.Fatalf("Error building Request object: %v", err)
@@ -31,8 +31,8 @@ func GetOcpToken(ocpOauthUrl string, username string, password string) string {
 	}
 
 	q := req.URL.Query()
-	q.Add("ResponseType", response_type)
-	q.Add("ClientID", client_id)
+	q.Add("ResponseType", responseType)
+	q.Add("ClientID", clientId)
 	req.URL.RawQuery = q.Encode()
 
 	log.Print(req.URL.String())
