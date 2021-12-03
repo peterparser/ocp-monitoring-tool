@@ -61,10 +61,3 @@ func parseResponse(response *http.Response) string {
 	accessToken := strings.Split(accessToken_raw[len(accessToken_raw)-1], "&")[0]
 	return accessToken
 }
-
-func errHandler(err error) {
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-}
