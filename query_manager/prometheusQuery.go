@@ -14,7 +14,7 @@ import (
 
 const sevenDaysSeconds = 86400 * 7
 
-func Query(Url string, token string, queries []util.PromQuery, plotterChan chan<- util.QueryResult) {
+func PerformQuery(Url string, token string, queries []util.Query, plotterChan chan<- util.QueryResult) {
 	startTime := time.Now().Unix() - sevenDaysSeconds
 	endTime := time.Now().Unix()
 	startTimeString := strconv.FormatInt(startTime, 10)
@@ -63,7 +63,7 @@ func Query(Url string, token string, queries []util.PromQuery, plotterChan chan<
 	}
 }
 
-func setQueryStartEnd(httpRequest *http.Request, promQuery *util.PromQuery, defaultStart string, defaultEnd string) {
+func setQueryStartEnd(httpRequest *http.Request, promQuery *util.Query, defaultStart string, defaultEnd string) {
 	q := httpRequest.URL.Query()
 
 	q.Add("query", promQuery.Expression)

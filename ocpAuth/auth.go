@@ -1,4 +1,4 @@
-package ocp_auth
+package ocpAuth
 
 import (
 	"crypto/tls"
@@ -31,14 +31,13 @@ func GetOcpToken(ocpOauthUrl string, username string, password string) string {
 	}
 
 	q := req.URL.Query()
-	q.Add("ResponseType", responseType)
-	q.Add("ClientID", clientId)
+	q.Add("response_type", responseType)
+	q.Add("client_id", clientId)
 	req.URL.RawQuery = q.Encode()
 
 	log.Print(req.URL.String())
 
 	req.Header.Add("Authorization", "Basic "+encodedAuth)
-	req.Header.Add("X-CSRF-Token", "csrf-token")
 
 	resp, err := client.Do(req)
 
