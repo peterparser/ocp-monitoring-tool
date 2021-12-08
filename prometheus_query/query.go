@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"../util"
@@ -15,7 +14,7 @@ import (
 
 const sevenDaysSeconds = 86400 * 7
 
-func Query(Url string, token string, queries []util.PromQuery, plotterChan chan<- string) {
+func Query(Url string, token string, queries []util.PromQuery, plotterChan chan<- util.QueryResult) {
 	startTime := time.Now().Unix() - sevenDaysSeconds
 	endTime := time.Now().Unix()
 	startTimeString := strconv.FormatInt(startTime, 10)
@@ -38,21 +37,7 @@ func Query(Url string, token string, queries []util.PromQuery, plotterChan chan<
 			os.Exit(1)
 		}
 
-		q := req.URL.Query()
-		if query.Start == "" {
-			q.Add("start", startTimeString)
-		} else {
-			q.Add("start", query.Start)
-		}
-
-		q.Add("query", query.Expression)
-		if query.End == "" {
-			q.Add("end", endTimeString)
-		} else {
-			q.Add("end", query.End)
-		}
-
-		req.URL.RawQuery = q.Encode()
+		setQueryStartEnd(req, &query, startTimeString, endTimeString)
 
 		log.Print(req.URL.String())
 
@@ -68,16 +53,32 @@ func Query(Url string, token string, queries []util.PromQuery, plotterChan chan<
 			os.Exit(1)
 		}
 		resp.Body.Close()
-		bodyString := string(bodyBytes)
 
-		plotterChan <- bodyString
+		result := util.QueryResult{
+			PrettyName: query.PrettyName,
+			Result:     string(bodyBytes),
+		}
+
+		plotterChan <- result
 	}
 }
 
-func parseResponse(response *http.Response) string {
-	locationHeader := response.Header.Get("metric")
-	accessToken_raw := strings.Split(locationHeader, "access_token=")
-	accessToken := strings.Split(accessToken_raw[len(accessToken_raw)-1], "&")[0]
-	return accessToken
+func setQueryStartEnd(httpRequest *http.Request, promQuery *util.PromQuery, defaultStart string, defaultEnd string) {
+	q := httpRequest.URL.Query()
 
+	q.Add("query", promQuery.Expression)
+
+	if promQuery.Start == "" {
+		q.Add("start", defaultStart)
+	} else {
+		q.Add("start", promQuery.Start)
+	}
+
+	if promQuery.End == "" {
+		q.Add("end", defaultEnd)
+	} else {
+		q.Add("end", promQuery.End)
+	}
+
+	httpRequest.URL.RawQuery = q.Encode()
 }
